@@ -49,7 +49,7 @@ seq <- seq(from=0, to=10*test_l, by = test_l)
 
 This code contains a nested for-loop that achieves a crossvalidation in the i loop where i is the number of subsets
 to divide the dataset into for crossvalidation; and it repeats that procedure in the j-loop where j is the number of
-pairs of parameters in the grid of test parameters. 
+pairs of parameters in the grid of test parameters assigned in the first two lines of the code chunk.  
 
 
 ```{r}
