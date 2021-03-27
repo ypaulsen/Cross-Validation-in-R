@@ -9,25 +9,35 @@ in R. The `ranger` package builds random forest models and takes the parameters 
 the number of variables to include in each regression and `numt` sets the number of trees to include in each forest.
 
 It outputs a list called `output` containing the supplied pairs of input parameters and the crossvalidation results
-for each. The results of the crossvalidation are the mean Accuracy, AUC, Cohen's \(\kappa\) for all of the runs of the crossvalidation.    
+for each. The results of the crossvalidation are the mean Accuracy, AUC, Cohen's \(\kappa\) for all of the runs of 
+the crossvalidation.    
 
 
 ```{r}
 library(ranger)
 ```
 
+Read in the data from github user ypaulsen. 
+
 ```{r}
 dat12_14 <- read.csv("https://github.com/ypaulsen/Cross-Validation-in-R/raw/main/dat12_14a.csv") 
 dat12_14$loan_status <- as.factor(dat12_14$loan_status)
 ```
 
+First lets have a look at the data: 
+
 ```{r}
 dplyr::glimpse(dat12_14)
 ```
 
+No missing values: 
+
 ```{r}
 visdat::vis_miss(dat12_14)
 ```
+
+This chunk starts the crossvalidation by setting up the number of subsets to use and generating the sequence of index
+numbers to split the dataset during the nested for loop in the next code chunk.  
 
 ```{r}
 # Size of subsets and sequence for subsetting       
@@ -36,6 +46,11 @@ CV <- 10
 test_l <- nrow(dat12_14)%/%CV
 seq <- seq(from=0, to=10*test_l, by = test_l)
 ```
+
+This code contains a nested for-loop that achieves a crossvalidation in the i loop where i is the number of subsets
+to divide the dataset into for crossvalidation; and it repeats that procedure in the j-loop where j is the number of
+pairs of parameters in the grid of test parameters. 
+
 
 ```{r}
 
