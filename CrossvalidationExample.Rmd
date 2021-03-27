@@ -10,7 +10,7 @@ library(ranger)
 ```
 
 ```{r}
-dat12_14 <- read.csv("C:/Users/yalep/Desktop/R Sandbox/dat12_14a.csv") 
+dat12_14 <- read.csv("https://github.com/ypaulsen/Cross-Validation-in-R/raw/main/dat12_14a.csv") 
 dat12_14$loan_status <- as.factor(dat12_14$loan_status)
 ```
 
