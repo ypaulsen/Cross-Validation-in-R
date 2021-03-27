@@ -8,6 +8,9 @@ loan_status and a grid of parameters for tuning. It takes as input a grid of par
 in R. The `ranger` package builds random forest models and takes the parameters `mtry` and `numt` where `mtry` sets
 the number of variables to include in each regression and `numt` sets the number of trees to include in each forest.
 
+It outputs a list called `output` containing the supplied pairs of input parameters and the crossvalidation results
+for each. The results of the crossvalidation are the mean Accuracy, AUC, Cohen's \(\kappa\) for all of the runs of the crossvalidation.    
+
 
 ```{r}
 library(ranger)
