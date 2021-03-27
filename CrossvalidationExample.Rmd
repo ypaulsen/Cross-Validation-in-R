@@ -3,7 +3,11 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-The code here cross validates a model given a data set named dat12_14 with a two factor outcome variable called loan_status and a grid of parameters for tuning. It takes as input a grid of parameters for the `ranger` package in R. The `ranger` package builds random forest models and takes the parameters `mtry` and `numt` where `mtry` sets the number of variables to include in each regression and `numt` sets the number of trees to include in each forest.    
+The code here cross validates a model given a data set named dat12_14 with a two factor outcome variable called 
+loan_status and a grid of parameters for tuning. It takes as input a grid of parameters for the `ranger` package 
+in R. The `ranger` package builds random forest models and takes the parameters `mtry` and `numt` where `mtry` sets
+the number of variables to include in each regression and `numt` sets the number of trees to include in each forest.
+
 
 ```{r}
 library(ranger)
