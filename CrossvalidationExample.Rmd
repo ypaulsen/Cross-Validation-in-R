@@ -1,18 +1,20 @@
 ---
+author: "Y. Paulsen"  
 title: "R Notebook"
 output: html_notebook
 ---
 
-The code here cross validates a model given a data set named dat12_14 with a two factor outcome variable called 
-loan_status and a grid of parameters for tuning. It takes as input a grid of parameters for the `ranger` package 
-in R. The `ranger` package builds random forest models and takes the parameters `mtry` and `numt` where `mtry` sets
-the number of variables to include in each regression and `numt` sets the number of trees to include in each forest.
-
-It outputs a list called `output` containing the supplied pairs of input parameters and the crossvalidation results
-for each. The results of the crossvalidation are the mean Accuracy, AUC, Cohen's \(\kappa\) for all of the runs of 
-the crossvalidation.    
-
-
+The code here cross validates a random forest algorithm given a data set named dat12_14 with a two factor outcome
+variable called loan_status and a user supplied set of parameters for tuning. It takes as input a grid of parameters 
+for the `ranger` package in R. The `ranger` package builds random forest models and takes the parameters `mtry` and
+`numt` where `mtry` sets the number of features to include in each regression and `numt` sets the number of trees to 
+include in each forest. The model can be easily replaced by e.g. tidymodels code in order to easily run the same
+crossvalidation code for any number of machine learning algorithms by simply adjusting the input parameters. 
+  
+This program outputs a list called `output` containing the supplied pairs of input parameters and the corresponding
+crossvalidation results for each. The results of the crossvalidation are the mean Accuracy, mean AUC, and mean Cohen's
+\(\kappa\). The user may chose the metric they prefer to work with given the analysis at hand.    
+    
 ```{r}
 library(ranger)
 ```
