@@ -4,19 +4,23 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-The code here cross validates a random forest algorithm given a data set named dat12_14 with a two factor outcome
-variable called loan_status and a user supplied set of parameters for tuning. It takes as input a grid of parameters 
-for the `ranger` package in R. The `ranger` package builds random forest models and takes the parameters `mtry` and
-`numt` where `mtry` sets the number of features to include in each regression and `numt` sets the number of trees to 
-include in each forest. The model can be easily replaced by e.g. tidymodels code in order to easily run the same
-crossvalidation code for any number of machine learning algorithms by simply adjusting the input parameters. 
-  
-This program outputs a list called `output` containing the supplied pairs of input parameters and the corresponding
-crossvalidation results for each. The results of the crossvalidation are the mean Accuracy, mean AUC, and mean Cohen's
-\(\kappa\). The user may chose the metric they prefer to work with given the analysis at hand.    
+The code here cross validates a random forest algorithm given a provided dataset named dat12_14 with a two factor 
+outcome variable called loan_status and a user supplied set of parameters for tuning. It takes as input a grid of 
+parameters for the `ranger` package in R. The `ranger` package builds random forest models and takes the parameters 
+`mtry` and `numt` where `mtry` sets the number of features to include in each regression and `numt` sets the number 
+of trees to include in each forest. The model can be easily replaced by e.g. tidymodels code in order to easily run 
+the same crossvalidation code for any number of machine learning algorithms by simply adjusting the input parameters.   
+   
+I used the `yardstick` package for its functions `metrics` and `roc_auc` to help generate measures of accuracy in the 
+output. This program outputs a list called `output` containing the supplied pairs of input parameters and the 
+corresponding crossvalidation results for each. The results of the crossvalidation are the mean Accuracy, mean AUC, 
+and mean Cohen's \(\kappa\). The user may chose the metric they prefer to work with given the analysis at hand.    
     
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(ranger)
+library(dplyr)
+library(yardstick)
+library(visdat)
 ```
 
 Read in the data from github user ypaulsen. 
@@ -32,27 +36,28 @@ First lets have a look at the data:
 dplyr::glimpse(dat12_14)
 ```
 
-No missing values: 
+Using the `visdat` package to look for missing data. This set is free of missing values.  
 
 ```{r}
 visdat::vis_miss(dat12_14)
 ```
 
-This chunk starts the crossvalidation by setting up the number of subsets to use and generating the sequence of index
-numbers to split the dataset during the nested for loop in the next code chunk.  
+The next chunk starts the crossvalidation by setting up the number of subsets to use and generating the sequence of 
+index numbers to split the dataset during the nested for loop in the next code chunk.  
 
 ```{r}
 # Size of subsets and sequence for subsetting       
 
-CV <- 10
-test_l <- nrow(dat12_14)%/%CV
+CV <- 10  # Number of subsets
+dat <- dat12_14  # Set dataset for crossvalidation
+
+test_l <- nrow(dat)%/%CV   
 seq <- seq(from=0, to=10*test_l, by = test_l)
 ```
 
-This code contains a nested for-loop that achieves a crossvalidation in the i loop where i is the number of subsets
-to divide the dataset into for crossvalidation; and it repeats that procedure in the j-loop where j is the number of
-pairs of parameters in the grid of test parameters assigned in the first two lines of the code chunk.  
-
+This code contains a nested for-loop that achieves a crossvalidation in the i loop where i is the number of subsets to
+crossvalidate. It repeats that procedure in the j-loop where j is the number of sets of parameters in the grid of test
+parameters assigned in the first two lines of the chunk.  
 
 ```{r}
 
@@ -81,8 +86,8 @@ output$numt[j] <- numt[j]
 
 for(i in 1:CV){
   test_rows <- seq[i]:seq[i+1]
-  test[[i]] <- dat12_14[test_rows,]
-  train[[i]] <- dat12_14[-test_rows,]
+  test[[i]] <- dat[test_rows,]
+  train[[i]] <- dat[-test_rows,]
   ranger_lending_cv <- ranger(loan_status ~ ., data = train[[i]], 
                              num.threads = 3, mtry = mtry[j], num.trees = numt[j])
   pred_cv[[i]] <- predict(ranger_lending_cv, data = test[[i]])$predictions
