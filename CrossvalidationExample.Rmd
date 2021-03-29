@@ -8,10 +8,10 @@ The code here cross validates a random forest algorithm given a provided dataset
 outcome variable called loan_status and a user supplied set of parameters for tuning. It takes as input a grid of 
 parameters for the `ranger` package in R. The `ranger` package builds random forest models and takes the parameters 
 `mtry` and `numt` where `mtry` sets the number of features to include in each regression and `numt` sets the number 
-of trees to include in each forest. The model can be easily replaced by e.g. tidymodels code in order to easily run 
+of trees to include in each forest. The model itself can be replaced by e.g. tidymodels code in order to easily run 
 the same crossvalidation code for any number of machine learning algorithms by simply adjusting the input parameters.   
    
-I used the `yardstick` package for its functions `metrics` and `roc_auc` to help generate measures of accuracy in the 
+I used the `yardstick` package for its functions `metrics()` and `roc_auc()` to help generate measures of accuracy in the 
 output. This program outputs a list called `output` containing the supplied pairs of input parameters and the 
 corresponding crossvalidation results for each. The results of the crossvalidation are the mean Accuracy, mean AUC, 
 and mean Cohen's \(\kappa\). The user may chose the metric they prefer to work with given the analysis at hand.    
@@ -27,7 +27,7 @@ Read in the data from github user ypaulsen.
 
 ```{r}
 dat12_14 <- read.csv("https://github.com/ypaulsen/Cross-Validation-in-R/raw/main/dat12_14a.csv") 
-dat12_14$loan_status <- as.factor(dat12_14$loan_status)
+dat12_14$loan_status <- as.factor(dat12_14$loan_status) # Change outcome to factor  
 ```
 
 First lets have a look at the data: 
@@ -72,39 +72,39 @@ output <- list()
 
 for(j in 1:length(mtry)){
 
-test <- list()
-train <- list()
-pred_cv <- list()
-results <- list()
-metrics <- list()
-kappa <- c()
-Acc <- c()
-AUC <- c()
+  test <- list()
+  train <- list()
+  pred_cv <- list()
+  results <- list()
+  metrics <- list()
+  kappa <- c()
+  Acc <- c()
+  AUC <- c()
 
-output$mtry[j] <- mtry[j]
-output$numt[j] <- numt[j]
+  output$mtry[j] <- mtry[j]
+  output$numt[j] <- numt[j]
 
-for(i in 1:CV){
-  test_rows <- seq[i]:seq[i+1]
-  test[[i]] <- dat[test_rows,]
-  train[[i]] <- dat[-test_rows,]
-  ranger_lending_cv <- ranger(loan_status ~ ., data = train[[i]], 
-                             num.threads = 3, mtry = mtry[j], num.trees = numt[j])
-  pred_cv[[i]] <- predict(ranger_lending_cv, data = test[[i]])$predictions
+  for(i in 1:CV){
+    test_rows <- seq[i]:seq[i+1]
+    test[[i]] <- dat[test_rows,]
+    train[[i]] <- dat[-test_rows,]
+    ranger_lending_cv <- ranger(loan_status ~ ., data = train[[i]], 
+                                num.threads = 3, mtry = mtry[j], num.trees = numt[j])
+    pred_cv[[i]] <- predict(ranger_lending_cv, data = test[[i]])$predictions
 
-  results[[i]] <- bind_cols(truth = test[[i]]$loan_status, 
-                 estimate=(as.numeric(pred_cv[[i]])-2)^2, 
-                 f_estimate = pred_cv[[i]])
+    results[[i]] <- bind_cols(truth = test[[i]]$loan_status, 
+                              estimate=(as.numeric(pred_cv[[i]])-2)^2, 
+                              f_estimate = pred_cv[[i]])
   
-  metrics[[i]] <- results[[i]] %>% 
-    metrics(truth = truth, estimate = f_estimate)
-  kappa[i] <- metrics[[i]]$.estimate[2] 
-  Acc[i] <- metrics[[i]]$.estimate[1]
+    metrics[[i]] <- results[[i]] %>% 
+      metrics(truth = truth, estimate = f_estimate)
+    kappa[i] <- metrics[[i]]$.estimate[2] 
+    Acc[i] <- metrics[[i]]$.estimate[1]
   
-  auc <- results[[i]] %>%
-    roc_auc(truth = truth, estimate)
-  AUC[i] <- auc$.estimate
-}
+    auc <- results[[i]] %>%
+      roc_auc(truth = truth, estimate)
+    AUC[i] <- auc$.estimate
+  }
   mean_kappa[j] <- mean(kappa)
   mean_AUC[j] <- mean(AUC)
   mean_Acc[j] <- mean(Acc)
